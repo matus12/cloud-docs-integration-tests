@@ -1,0 +1,17 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "include": [
+      "./tests/*.ts",
+      "./external/*.ts"
+    ]
+  },
+  "jsRules": {},
+  "rules": {
+    "no-var-requires": false
+  },
+  "rulesDirectory": []
+}
