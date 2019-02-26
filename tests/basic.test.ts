@@ -1,4 +1,4 @@
-import {ContentTypeModels, ElementModels} from "kentico-cloud-content-management";
+import { ContentTypeModels, ElementModels } from "kentico-cloud-content-management";
 import {
     DeleteContentItemQuery,
     DeleteContentTypeQuery,
@@ -8,11 +8,12 @@ import {
 import IAddContentTypeData = ContentTypeModels.IAddContentTypeData;
 import IAddContentTypeElementData = ContentTypeModels.IAddContentTypeElementData;
 import IElementType = ElementModels.ElementType;
-import {getLiveKenticoClient, getTestKenticoClient} from "../external/kenticoClients";
+import { getLiveKenticoClient, getTestKenticoClient } from "../external/kenticoClients";
 
 type DeleteAction =
     () => FullIdentifierQuery<DeleteContentItemQuery> | IdCodenameIdentifierQuery<DeleteContentTypeQuery>;
 
+jest.retryTimes(3);
 jest.setTimeout(20000);
 
 const codenamesOfContentTypesToCopy = [
