@@ -7,7 +7,7 @@ import {
     LIVE_PROJECT_ID,
     TEST_API_KEY,
     TEST_PROJECT_ID,
-} from "../constants/projectSettings";
+} from "../shared/projectSettings";
 
 let testKenticoClient: IContentManagementClient;
 let liveKenticoClient: IContentManagementClient;
