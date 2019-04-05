@@ -6,22 +6,29 @@ import {
     publishDefaultLanguageVariant,
     unpublishDefaultLanguageVariant,
     upsertDefaultLanguageVariant,
-} from "../shared/helperFunctions";
-import { setupEnvironment, tearDownEnviroment } from "../shared/testEnvironment";
+} from "../shared/kenticoCloudHelper";
+import { randomize } from "../shared/randomize";
+import {
+    IEnvironmentContext,
+    setupEnvironment,
+    tearDownEnviroment,
+} from "../shared/testEnvironment";
 
 jest.setTimeout(300000);
 
+let context: IEnvironmentContext;
+
 beforeAll(async () => {
-    await setupEnvironment();
+    context = await setupEnvironment();
 });
 
 afterAll(async () => {
-    await tearDownEnviroment();
+    await tearDownEnviroment(context);
 });
 
 test("Search content of published article", async () => {
-    const textToSearch = "rkmcorr2oj";
-    const item = await addContentItem(`Test article (${textToSearch})`, "article");
+    const textToSearch = randomize("article_content");
+    const item = await addContentItem(`Test article (${textToSearch})`, context.types.article.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -48,8 +55,8 @@ test("Search content of published article", async () => {
 });
 
 test("Search introduction of published article", async () => {
-    const textToSearch = "y8t3nisvo8";
-    const item = await addContentItem(`Test article (${textToSearch})`, "article");
+    const textToSearch = randomize("article_introduction");
+    const item = await addContentItem(`Test article (${textToSearch})`, context.types.article.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -76,8 +83,8 @@ test("Search introduction of published article", async () => {
 });
 
 test("Search content of published scenario", async () => {
-    const textToSearch = "r94s4pmj7k";
-    const item = await addContentItem(`Test scenario (${textToSearch})`, "scenario");
+    const textToSearch = randomize("scenario_content");
+    const item = await addContentItem(`Test scenario (${textToSearch})`, context.types.scenario.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -104,8 +111,8 @@ test("Search content of published scenario", async () => {
 });
 
 test("Search introduction of published scenario", async () => {
-    const textToSearch = "8kkzev724c";
-    const item = await addContentItem(`Test scenario (${textToSearch})`, "scenario");
+    const textToSearch = randomize("scenario_introduction");
+    const item = await addContentItem(`Test scenario (${textToSearch})`, context.types.scenario.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -132,8 +139,8 @@ test("Search introduction of published scenario", async () => {
 });
 
 test("Search title of published article", async () => {
-    const textToSearch = "ucsmfzybkh";
-    const item = await addContentItem(`Test article (${textToSearch})`, "article");
+    const textToSearch = randomize("article_title");
+    const item = await addContentItem(`Test article (${textToSearch})`, context.types.article.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -160,8 +167,8 @@ test("Search title of published article", async () => {
 });
 
 test("Search content of a callout within an article", async () => {
-    const textToSearch = "wixgm4pkzh";
-    const callout = await addContentItem(`Test Callout (${textToSearch})`, "callout");
+    const textToSearch = randomize("test_6");
+    const callout = await addContentItem(`Test Callout (${textToSearch})`, context.types.callout.codename);
     await upsertDefaultLanguageVariant(callout.id, [
         {
             element: {
@@ -172,7 +179,7 @@ test("Search content of a callout within an article", async () => {
     ]);
     await publishDefaultLanguageVariant(callout.id);
 
-    const article = await addContentItem(`Test article (tlhkvctfwx)`, "article");
+    const article = await addContentItem(`Test article (tlhkvctfwx)`, context.types.article.codename);
     await upsertDefaultLanguageVariant(article.id, [
         {
             element: {
@@ -200,8 +207,9 @@ test("Search content of a callout within an article", async () => {
 });
 
 test("Search content of a content chunk within an article", async () => {
-    const textToSearch = "ebzsgrk8hb";
-    const contentChunk = await addContentItem(`Test Content Chunk (${textToSearch})`, "content_chunk");
+    const textToSearch = randomize("test_7");
+    const contentChunk =
+        await addContentItem(`Test Content Chunk (${textToSearch})`, context.types.content_chunk.codename);
     await upsertDefaultLanguageVariant(contentChunk.id, [
         {
             element: {
@@ -212,7 +220,7 @@ test("Search content of a content chunk within an article", async () => {
     ]);
     await publishDefaultLanguageVariant(contentChunk.id);
 
-    const article = await addContentItem(`Test article (8uw2u7qgww)`, "article");
+    const article = await addContentItem(`Test article (8uw2u7qgww)`, context.types.article.codename);
     await upsertDefaultLanguageVariant(article.id, [
         {
             element: {
@@ -240,8 +248,8 @@ test("Search content of a content chunk within an article", async () => {
 });
 
 test("Saga: Publish, unpublish, create new version", async () => {
-    const textToSearch = "mlv0te5ymp";
-    const item = await addContentItem(`Test article (${textToSearch})`, "article");
+    const textToSearch = randomize("test_8");
+    const item = await addContentItem(`Test article (${textToSearch})`, context.types.article.codename);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
@@ -277,19 +285,20 @@ test("Saga: Publish, unpublish, create new version", async () => {
         expect(searchResponse.hits.length).toBe(1);
     });
 
+    const updatedTextToSearch = randomize("test_8");
     await createNewVersionOfDefaultLanguageVariant(item.id);
     await upsertDefaultLanguageVariant(item.id, [
         {
             element: {
                 codename: "content",
             },
-            value: "<p>Some random text: e5yqdo8sdb.</p>",
+            value: `<p>Some random text: ${updatedTextToSearch}.</p>`,
         },
     ]);
     await publishDefaultLanguageVariant(item.id);
 
     await assertWithRetry(async () => {
-        const searchResponse = await algoliaIndex.search("e5yqdo8sdb");
+        const searchResponse = await algoliaIndex.search(updatedTextToSearch);
         expect(searchResponse.hits.length).toBe(1);
     });
 });

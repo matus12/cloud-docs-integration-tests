@@ -1,4 +1,5 @@
 import {
+    ContentItemModels,
     ContentTypeModels,
     ElementModels,
     TaxonomyModels,
@@ -17,10 +18,23 @@ const codenamesOfContentTypesToCopy = [
     "code_samples",
 ];
 
-const destinationTaxonomies: { [id: string]: TaxonomyModels.Taxonomy; } = {};
+export interface IEnvironmentContext {
+    taxonomies: ITaxonomyLookup;
+    types: IContentTypeLookup;
+}
 
-export const setupEnvironment = async () => {
+interface ITaxonomyLookup {
+    [id: string]: TaxonomyModels.Taxonomy;
+}
+
+interface IContentTypeLookup {
+    [codename: string]: ContentTypeModels.ContentType;
+}
+
+export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
     const client = getLiveKenticoClient();
+    const destinationTaxonomies: ITaxonomyLookup = {};
+    const destinationTypes: IContentTypeLookup = {};
 
     await client
         .listTaxonomies()
@@ -42,45 +56,53 @@ export const setupEnvironment = async () => {
             .byTypeCodename(codename)
             .toPromise()
             .then(async (response) => {
-                await addContentType(response.rawData);
+                const createdType = await addContentType(response.rawData, destinationTaxonomies);
+                destinationTypes[codename] = createdType;
+
             });
     }
+
+    return {
+        taxonomies: destinationTaxonomies,
+        types: destinationTypes,
+    };
 };
 
-export const tearDownEnviroment = async () => {
-    const codenamesOfContentItemsToDelete: string[] = [];
+export const tearDownEnviroment = async (context: IEnvironmentContext) => {
+    const taxonomyIds = Object.keys(context.taxonomies).map((key: string) => context.taxonomies[key].id);
+    const typeIds = Object.keys(context.types).map((key: string) => context.types[key].id);
 
-    await getTestKenticoClient()
+    const items = await getTestKenticoClient()
         .listContentItems()
-        .toPromise()
-        .then((response) => {
-            response
-                .data
-                .items
-                .map((item) => codenamesOfContentItemsToDelete.push(item.codename));
-        });
+        .toPromise();
 
-    const taxonomyCodenames: string[] = [];
-    for (const key of Object.keys(destinationTaxonomies)) {
-        const taxonomy = destinationTaxonomies[key];
-        taxonomyCodenames.push(taxonomy.codename);
-    }
+    const itemIds = items.data.items
+        .filter((item: ContentItemModels.ContentItem) => typeIds.includes(item.type.id))
+        .map((item: ContentItemModels.ContentItem) => item.id);
 
-    await deleteTaxonomyGroups(taxonomyCodenames);
-    await deleteContentItems(codenamesOfContentItemsToDelete);
-    await deleteContentTypes(codenamesOfContentTypesToCopy);
+    await deleteContentItems(itemIds);
+    await deleteContentTypes(typeIds);
+    await deleteTaxonomyGroups(taxonomyIds);
 };
 
-const addContentType = async (contentType: any) => {
-    const typeToCreate = processContentType(contentType);
+const addContentType = async (
+    contentType: any,
+    destinationTaxonomies: ITaxonomyLookup,
+): Promise<ContentTypeModels.ContentType> => {
+    const typeToCreate = processContentType(contentType, destinationTaxonomies);
 
-    await getTestKenticoClient()
+    const response = await getTestKenticoClient()
         .addContentType()
         .withData(typeToCreate)
         .toPromise();
+
+    return response.data;
 };
 
-const processContentType = (contentType: ContentTypeModels.ContentType): ContentTypeModels.ContentType => {
+const processContentType = (
+    contentType: ContentTypeModels.ContentType,
+    destinationTaxonomies: ITaxonomyLookup,
+): ContentTypeModels.ContentType => {
     contentType.elements = contentType
         .elements
         .filter((element: ElementModels.ElementModel) =>
@@ -104,35 +126,35 @@ const processContentType = (contentType: ContentTypeModels.ContentType): Content
     return contentType;
 };
 
-const deleteTaxonomyGroups = async (taxonomyCodenames: string[]): Promise<void> => {
+const deleteTaxonomyGroups = async (taxonomyIds: string[]): Promise<void> => {
     const client = getTestKenticoClient();
 
-    for (const codename of taxonomyCodenames) {
+    for (const id of taxonomyIds) {
         await client
             .deleteTaxonomy()
-            .byTaxonomyCodename(codename)
+            .byTaxonomyId(id)
             .toPromise();
     }
 };
 
-const deleteContentTypes = async (codenames: string[]): Promise<void> => {
+const deleteContentTypes = async (typeIds: string[]): Promise<void> => {
     const client = getTestKenticoClient();
 
-    for (const codename of codenames) {
+    for (const id of typeIds) {
         await client
             .deleteContentType()
-            .byTypeCodename(codename)
+            .byTypeId(id)
             .toPromise();
     }
 };
 
-const deleteContentItems = async (itemCodenames: string[]): Promise<void> => {
+const deleteContentItems = async (itemIds: string[]): Promise<void> => {
     const client = getTestKenticoClient();
 
-    for (const codename of itemCodenames) {
+    for (const id of itemIds) {
         await client
             .deleteContentItem()
-            .byItemCodename(codename)
+            .byItemId(id)
             .toPromise();
     }
 };

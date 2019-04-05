@@ -4,6 +4,6 @@ export const assertWithRetry = async (assert: () => void) => {
     await retry(async () => {
         await assert();
       }, {
-        retries: 10,
+        retries: 8,
       });
 };
