@@ -8,6 +8,7 @@
     "async-retry": "^1.2.3",
     "dotenv": "^6.2.0",
     "jest": "^24.1.0",
+    "jest-simple-dot-reporter": "^1.0.3",
     "kentico-cloud-content-management": "^0.0.4",
     "rxjs": "^6.4.0",
     "ts-jest": "24.0.0",

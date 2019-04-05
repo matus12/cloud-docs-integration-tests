@@ -22,6 +22,8 @@ const codenamesOfContentTypesToCopy = [
     "callout",
     "content_chunk",
     "scenario",
+    "code_sample",
+    "code_samples",
 ];
 
 const destinationTaxonomies: { [id: string]: TaxonomyModels.Taxonomy; } = {};
