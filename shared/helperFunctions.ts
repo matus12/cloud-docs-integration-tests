@@ -1,38 +1,33 @@
-import axios from "axios";
 import {
     ContentItemModels,
     LanguageVariantModels,
 } from "kentico-cloud-content-management";
 import { getTestKenticoClient } from "../external/kenticoClients";
-import {
-    TEST_API_KEY,
-    TEST_PROJECT_ID,
-} from "./projectSettings";
 
-const cmApiBaseAddress = `https://manage.kenticocloud.com/v2/projects/${TEST_PROJECT_ID}`;
+const EmptyGuid: string = "00000000-0000-0000-0000-000000000000";
 
-export const publishDefaultLanguageVariant = async (itemId: string) => {
-    return axios({
-        headers: { Authorization: "Bearer " + TEST_API_KEY },
-        method: "put",
-        url: `${cmApiBaseAddress}/items/${itemId}/variants/00000000-0000-0000-0000-000000000000/publish`,
-    });
+export const publishDefaultLanguageVariant = async (itemId: string): Promise<void> => {
+    await getTestKenticoClient()
+        .publishOrScheduleLanguageVariant()
+        .byItemId(itemId)
+        .byLanguageId(EmptyGuid)
+        .toPromise();
 };
 
-export const unpublishDefaultLanguageVariant = async (itemId: string) => {
-    return axios({
-        headers: { Authorization: "Bearer " + TEST_API_KEY },
-        method: "put",
-        url: `${cmApiBaseAddress}/items/${itemId}/variants/00000000-0000-0000-0000-000000000000/unpublish`,
-    });
+export const unpublishDefaultLanguageVariant = async (itemId: string): Promise<void> => {
+    await getTestKenticoClient()
+        .unpublishLanguageVariant()
+        .byItemId(itemId)
+        .byLanguageId(EmptyGuid)
+        .toPromise();
 };
 
-export const createNewVersionOfDefaultLanguageVariant = async (itemId: string) => {
-    return axios({
-        headers: { Authorization: "Bearer " + TEST_API_KEY },
-        method: "put",
-        url: `${cmApiBaseAddress}/items/${itemId}/variants/00000000-0000-0000-0000-000000000000/new-version`,
-    });
+export const createNewVersionOfDefaultLanguageVariant = async (itemId: string): Promise<void> => {
+    await getTestKenticoClient()
+        .createNewVersionOfLanguageVariant()
+        .byItemId(itemId)
+        .byLanguageId(EmptyGuid)
+        .toPromise();
 };
 
 export const addContentItem = async (name: string, type: string): Promise<ContentItemModels.ContentItem> => {
@@ -56,8 +51,8 @@ export const upsertDefaultLanguageVariant = async (
 ): Promise<LanguageVariantModels.ContentItemLanguageVariant> => {
     const response = await getTestKenticoClient()
         .upsertLanguageVariant()
-        .byInternalId(itemId)
-        .forLanguageId("00000000-0000-0000-0000-000000000000")
+        .byItemId(itemId)
+        .byLanguageId(EmptyGuid)
         .withElements(elements)
         .toPromise();
 

@@ -2077,17 +2077,17 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-kentico-cloud-content-management@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/kentico-cloud-content-management/-/kentico-cloud-content-management-0.0.4.tgz#53189e31c3da8fa21cb36c2751cabc267ee8b4d4"
-  integrity sha512-ky+xkdD5wfZj/9yiCOIra0feC7IgbCCUfuDSW15/3MQdTWuxdRSlXNu1AwvUyAEV72Wdrmyyxs9CNFBXF0fUvA==
+kentico-cloud-content-management@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/kentico-cloud-content-management/-/kentico-cloud-content-management-0.0.13.tgz#4bf7b7c42eadaaf4a2619c4368bf34212d8e1cff"
+  integrity sha512-4C58LIPgsClk5eS8wXJXyky9ofopG1SLJ37WO8AmJh7noyDxBXvkFZbWXNeHajCXHTlS9uiK4jYFYuJhoFjieg==
   dependencies:
-    kentico-cloud-core "1.3.2"
+    kentico-cloud-core "1.4.5"
 
-kentico-cloud-core@1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/kentico-cloud-core/-/kentico-cloud-core-1.3.2.tgz#f11af5da1d65c32ef27020e73c9cdcca8fa9836e"
-  integrity sha512-tMsd2fdj4ZseDeOR63rYfYwlbvpjcdPMjwAZo56xYf0uglM1BXj7apqh4O/JgBHoTXkPsO1iLhIvxDWndqpTRA==
+kentico-cloud-core@1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/kentico-cloud-core/-/kentico-cloud-core-1.4.5.tgz#cd5a27f77f86de199dab504e18bbc5e1ff641060"
+  integrity sha512-kZkqE10SxtOTt4utNy9iULuzLe2QL+3C8p8ptOgTvMYfrVMp7MpctUXgeUBHvCjeFYYqFdRYZ/56O6hg+6aMPA==
   dependencies:
     axios "0.18.0"
 

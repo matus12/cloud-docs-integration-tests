@@ -1,21 +1,12 @@
 import {
-    DeleteContentItemQuery,
-    DeleteContentTypeQuery,
-    DeleteTaxonomyQuery,
+    ContentTypeModels,
     ElementModels,
-    FullIdentifierQuery,
-    IdCodenameIdentifierQuery,
     TaxonomyModels,
 } from "kentico-cloud-content-management";
 import {
     getLiveKenticoClient,
     getTestKenticoClient,
 } from "../external/kenticoClients";
-
-type DeleteAction =
-    () => FullIdentifierQuery<DeleteContentItemQuery> |
-    IdCodenameIdentifierQuery<DeleteContentTypeQuery> |
-    FullIdentifierQuery<DeleteTaxonomyQuery>;
 
 const codenamesOfContentTypesToCopy = [
     "article",
@@ -48,7 +39,7 @@ export const setupEnvironment = async () => {
     for (const codename of codenamesOfContentTypesToCopy) {
         await client
             .viewContentType()
-            .byCodename(codename)
+            .byTypeCodename(codename)
             .toPromise()
             .then(async (response) => {
                 await addContentType(response.rawData);
@@ -69,38 +60,36 @@ export const tearDownEnviroment = async () => {
                 .map((item) => codenamesOfContentItemsToDelete.push(item.codename));
         });
 
-    await deleteFromCloud(
-        () => getTestKenticoClient().deleteContentItem(),
-        codenamesOfContentItemsToDelete,
-    );
-    await deleteFromCloud(
-        () => getTestKenticoClient().deleteContentType(),
-        codenamesOfContentTypesToCopy,
-    );
-
-    const taxonomyCodenames = [];
+    const taxonomyCodenames: string[] = [];
     for (const key of Object.keys(destinationTaxonomies)) {
         const taxonomy = destinationTaxonomies[key];
         taxonomyCodenames.push(taxonomy.codename);
     }
 
-    await deleteFromCloud(
-        () => getTestKenticoClient().deleteTaxonomy(),
-        taxonomyCodenames,
-    );
+    await deleteTaxonomyGroups(taxonomyCodenames);
+    await deleteContentItems(codenamesOfContentItemsToDelete);
+    await deleteContentTypes(codenamesOfContentTypesToCopy);
 };
 
 const addContentType = async (contentType: any) => {
-    contentType.elements =
-        contentType
-            .elements
-            .filter((element: ElementModels.ElementModel) =>
-                element.type !== ElementModels.ElementType.urlSlug);
+    const typeToCreate = processContentType(contentType);
+
+    await getTestKenticoClient()
+        .addContentType()
+        .withData(typeToCreate)
+        .toPromise();
+};
+
+const processContentType = (contentType: ContentTypeModels.ContentType): ContentTypeModels.ContentType => {
+    contentType.elements = contentType
+        .elements
+        .filter((element: ElementModels.ElementModel) =>
+            element.type !== ElementModels.ElementType.urlSlug);
 
     contentType.elements = contentType.elements.map((element: any) => {
         switch (element.type) {
             case ElementModels.ElementType.taxonomy:
-            return {
+                return {
                     guidelines: element.guidelines,
                     taxonomy_group: {
                         id: destinationTaxonomies[element.taxonomy_group.id].id,
@@ -112,16 +101,38 @@ const addContentType = async (contentType: any) => {
         }
     });
 
-    await getTestKenticoClient()
-        .addContentType()
-        .withData(contentType)
-        .toPromise();
+    return contentType;
 };
 
-const deleteFromCloud = async (deleteAction: DeleteAction, codenames: string[]) => {
+const deleteTaxonomyGroups = async (taxonomyCodenames: string[]): Promise<void> => {
+    const client = getTestKenticoClient();
+
+    for (const codename of taxonomyCodenames) {
+        await client
+            .deleteTaxonomy()
+            .byTaxonomyCodename(codename)
+            .toPromise();
+    }
+};
+
+const deleteContentTypes = async (codenames: string[]): Promise<void> => {
+    const client = getTestKenticoClient();
+
     for (const codename of codenames) {
-        await deleteAction()
-            .byCodename(codename)
+        await client
+            .deleteContentType()
+            .byTypeCodename(codename)
+            .toPromise();
+    }
+};
+
+const deleteContentItems = async (itemCodenames: string[]): Promise<void> => {
+    const client = getTestKenticoClient();
+
+    for (const codename of itemCodenames) {
+        await client
+            .deleteContentItem()
+            .byItemCodename(codename)
             .toPromise();
     }
 };
