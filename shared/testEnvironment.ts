@@ -32,11 +32,27 @@ interface IContentTypeLookup {
 }
 
 export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
-    const client = getLiveKenticoClient();
-    const destinationTaxonomies: ITaxonomyLookup = {};
-    const destinationTypes: IContentTypeLookup = {};
+    const destinationTaxonomies = await copyTaxonomies();
+    const destinationTypes = await copyTypes(destinationTaxonomies);
 
-    await client
+    return {
+        taxonomies: destinationTaxonomies,
+        types: destinationTypes,
+    };
+};
+
+export const tearDownEnviroment = async (context: IEnvironmentContext) => {
+    const typeIds = Object.keys(context.types).map((key: string) => context.types[key].id);
+
+    await deleteContentItems(typeIds);
+    await deleteContentTypes(typeIds);
+    await deleteTaxonomyGroups(context);
+};
+
+const copyTaxonomies = async (): Promise<ITaxonomyLookup> => {
+    const destinationTaxonomies: ITaxonomyLookup = {};
+
+    await getLiveKenticoClient()
         .listTaxonomies()
         .toPromise()
         .then(async (taxonomies) => {
@@ -50,6 +66,13 @@ export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
             }
         });
 
+    return destinationTaxonomies;
+};
+
+const copyTypes = async (destinationTaxonomies: ITaxonomyLookup): Promise<IContentTypeLookup> => {
+    const client = getLiveKenticoClient();
+    const destinationTypes: IContentTypeLookup = {};
+
     for (const codename of codenamesOfContentTypesToCopy) {
         await client
             .viewContentType()
@@ -62,27 +85,7 @@ export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
             });
     }
 
-    return {
-        taxonomies: destinationTaxonomies,
-        types: destinationTypes,
-    };
-};
-
-export const tearDownEnviroment = async (context: IEnvironmentContext) => {
-    const taxonomyIds = Object.keys(context.taxonomies).map((key: string) => context.taxonomies[key].id);
-    const typeIds = Object.keys(context.types).map((key: string) => context.types[key].id);
-
-    const items = await getTestKenticoClient()
-        .listContentItems()
-        .toPromise();
-
-    const itemIds = items.data.items
-        .filter((item: ContentItemModels.ContentItem) => typeIds.includes(item.type.id))
-        .map((item: ContentItemModels.ContentItem) => item.id);
-
-    await deleteContentItems(itemIds);
-    await deleteContentTypes(typeIds);
-    await deleteTaxonomyGroups(taxonomyIds);
+    return destinationTypes;
 };
 
 const addContentType = async (
@@ -126,7 +129,8 @@ const processContentType = (
     return contentType;
 };
 
-const deleteTaxonomyGroups = async (taxonomyIds: string[]): Promise<void> => {
+const deleteTaxonomyGroups = async (context: IEnvironmentContext): Promise<void> => {
+    const taxonomyIds = Object.keys(context.taxonomies).map((key: string) => context.taxonomies[key].id);
     const client = getTestKenticoClient();
 
     for (const id of taxonomyIds) {
@@ -148,8 +152,16 @@ const deleteContentTypes = async (typeIds: string[]): Promise<void> => {
     }
 };
 
-const deleteContentItems = async (itemIds: string[]): Promise<void> => {
+const deleteContentItems = async (typeIds: string[]): Promise<void> => {
     const client = getTestKenticoClient();
+
+    const items = await getTestKenticoClient()
+        .listContentItems()
+        .toPromise();
+
+    const itemIds = items.data.items
+        .filter((item: ContentItemModels.ContentItem) => typeIds.includes(item.type.id))
+        .map((item: ContentItemModels.ContentItem) => item.id);
 
     for (const id of itemIds) {
         await client
