@@ -4,10 +4,12 @@
 # Kentico Cloud Documentation - Integration Tests
 Integration tests for Kentico Cloud documentation portal, which utilizes [Kentico Cloud](https://app.kenticocloud.com/) as a source of its content.
 
-The service is responsible for testing the integration between [Dispatcher](https://github.com/Kentico/kentico-cloud-docs-dispatcher), [Search Service](https://github.com/Kentico/kentico-cloud-docs-search), [Github Sync Service](https://github.com/Kentico/kentico-cloud-docs-github-sync) and [Web Service](https://github.com/Kentico/kentico-cloud-docs-web).
+The service is responsible for testing the integration between various [Kentico Cloud Documentation services](https://github.com/Kentico?utf8=✓&q=kentico-cloud-docs).
 
 ## Overview
-Tests copy selected content types from live Kentico Cloud project to a test Kentico Cloud project. Afterwards, content items are created in the test project and filled with content. This is all done using [Kentico Cloud Content management JavaScript SDK](https://github.com/Kentico/kentico-cloud-js/tree/master/packages/content-management).
+Tests copy selected content types from live Kentico Cloud project to a testing Kentico Cloud project. Afterwards, content items are created in the test project and filled with content. This is all done using [Kentico Cloud Content management JavaScript SDK](https://github.com/Kentico/kentico-cloud-js/tree/master/packages/content-management).
+
+The tests then check whether the created content items have been indexed on Algolia, which is used for search functionality on Kentico Cloud Documentation.
 
 ## Setup
 
@@ -26,12 +28,13 @@ Tests copy selected content types from live Kentico Cloud project to a test Kent
 * `OHP_LIVE_PROJECT_ID` - Project ID of live Kentico Cloud project
 * `OHP_TEST_CM_API_KEY` - Content management API key of test Kentico Cloud project
 * `OHP_TEST_PROJECT_ID` - Project ID of test Kentico Cloud project
+* `OHP_SEARCH_APP_ID` - Algolia application ID
+* `OHP_SEARCH_API_KEY` - Algolia admin API key
+* `OHP_SEARCH_INDEX_NAME` - Index name in Algolia application
 
 ## How To Contribute
 
 Feel free to open a new issue where you describe your proposed changes, or even create a new pull request from your branch with proposed changes.
-
-
 
 ## Licence
 
