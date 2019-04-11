@@ -2,34 +2,34 @@ import retry from "async-retry";
 import { algoliaIndex } from "../external/algoliaClient";
 
 interface ISearchRecord {
-    content: string;
-    id: string;
-    title: string;
-    codename: string;
+    readonly content: string;
+    readonly id: string;
+    readonly title: string;
+    readonly codename: string;
 }
 
 export const assertSearchRecordWithRetry = async (
     textToSearch: string,
     expectedRecord: ISearchRecord,
     message = "",
-) => {
+): Promise<void> => {
     await assertWithRetry(async () => {
-        const searchResponse = await algoliaIndex.search(textToSearch);
+        const searchResponse = await algoliaIndex.search<ISearchRecord>(textToSearch);
 
         expect({ message, hits: searchResponse.hits.length }).toEqual({ message, hits: 1 });
         expectCorrectSearchRecord(searchResponse.hits[0], expectedRecord);
     });
 };
 
-export const assertSearchWithRetry = async (textToSearch: string, hits: number, message = "") => {
+export const assertSearchWithRetry = async (textToSearch: string, hits: number, message = ""): Promise<void> => {
     await assertWithRetry(async () => {
-        const searchResponse = await algoliaIndex.search(textToSearch);
+        const searchResponse = await algoliaIndex.search<ISearchRecord>(textToSearch);
 
         expect({ message, hits: searchResponse.hits.length }).toEqual({ message, hits });
     });
 };
 
-const assertWithRetry = async (assert: () => void) => {
+const assertWithRetry = async (assert: () => void): Promise<void> => {
     await retry(async () => {
         await assert();
     }, {
@@ -37,7 +37,7 @@ const assertWithRetry = async (assert: () => void) => {
     });
 };
 
-const expectCorrectSearchRecord = (actual: any, expected: ISearchRecord) => {
+const expectCorrectSearchRecord = (actual: ISearchRecord, expected: ISearchRecord): void => {
     expect(actual.content).toEqual(expected.content);
     expect(actual.id).toEqual(expected.id);
     expect(actual.title).toEqual(expected.title);

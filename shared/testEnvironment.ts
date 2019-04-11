@@ -19,8 +19,8 @@ const codenamesOfContentTypesToCopy = [
 ];
 
 export interface IEnvironmentContext {
-    taxonomies: ITaxonomyLookup;
-    types: IContentTypeLookup;
+    readonly taxonomies: ITaxonomyLookup;
+    readonly types: IContentTypeLookup;
 }
 
 interface ITaxonomyLookup {
@@ -41,7 +41,7 @@ export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
     };
 };
 
-export const tearDownEnviroment = async (context: IEnvironmentContext) => {
+export const tearDownEnviroment = async (context: IEnvironmentContext): Promise<void> => {
     const typeIds = Object.keys(context.types).map((key: string) => context.types[key].id);
 
     await deleteContentItems(typeIds);
