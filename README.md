@@ -2,7 +2,7 @@
 [![codebeat badge](https://codebeat.co/badges/260d7081-910a-430f-a59b-fc6de2c998c4)](https://codebeat.co/projects/github-com-kentico-kentico-cloud-docs-integration-tests-master)
 
 # Kentico Cloud Documentation - Integration Tests
-Integration tests for Kentico Cloud documentation portal, which utilizes [Kentico Cloud](https://app.kenticocloud.com/) as a source of its content.
+Integration tests for Kentico Cloud [documentation portal](https://docs.kenticocloud.com/), which utilizes Kentico Cloud as a source of its content.
 
 The service is responsible for testing the integration between various [Kentico Cloud Documentation services](https://github.com/Kentico?utf8=✓&q=kentico-cloud-docs).
 
@@ -31,6 +31,8 @@ The tests then check whether the created content items have been indexed on Algo
 * `OHP_SEARCH_APP_ID` - Algolia application ID
 * `OHP_SEARCH_API_KEY` - Algolia admin API key
 * `OHP_SEARCH_INDEX_NAME` - Index name in Algolia application
+* `CASCADE_PUBLISH_ID` - Cascade Publish workflow step ID
+* `PUBLISHER_TRIGGER_URL` - Trigger endpoint of the [Publisher Service](https://github.com/Kentico/kentico-cloud-docs-publisher)
 
 ## How To Contribute
 
