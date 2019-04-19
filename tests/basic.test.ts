@@ -247,7 +247,7 @@ test("Search content of a content chunk within an article", async () => {
 
     await assertSearchRecordWithRetry(textToSearch, {
         codename: article.codename,
-        content: `Some content: Some random text in content chunk: ${textToSearch}.`,
+        content: `Some random text in content chunk: ${textToSearch}.`,
         id: article.id,
         title: "Test Article (8uw2u7qgww)",
     });
@@ -356,7 +356,7 @@ test("Saga: Search content of a hierarchical article", async () => {
 
     await assertSearchRecordWithRetry(contentChunkText, {
         codename: article.codename,
-        content: `Some content: Some random text in content chunk: ${contentChunkText}.`,
+        content: `Some random text in content chunk: ${contentChunkText}.`,
         id: article.id,
         title: "Test Article (8uw2u7qgww)",
     }, "Search by content chunk text should return a hit.");
