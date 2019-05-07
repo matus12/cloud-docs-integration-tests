@@ -9,7 +9,7 @@ const EmptyGuid: string = "00000000-0000-0000-0000-000000000000";
 
 export const publishDefaultLanguageVariant = async (itemId: string, scheduled_to?: string): Promise<void> => {
     const timeData = scheduled_to
-        ? ({ scheduled_to })
+        ? ({scheduled_to})
         : undefined as any;
 
     await getTestKenticoClient()
@@ -81,3 +81,10 @@ export const upsertDefaultLanguageVariant = async (
 
     return response.data;
 };
+
+export const viewDefaultLanguageVariant = async (itemId: string) =>
+    getTestKenticoClient()
+        .viewLanguageVariant()
+        .byItemId(itemId)
+        .byLanguageId(EmptyGuid)
+        .toPromise();
