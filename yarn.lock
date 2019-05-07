@@ -2082,10 +2082,10 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-kentico-cloud-content-management@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/kentico-cloud-content-management/-/kentico-cloud-content-management-0.0.13.tgz#4bf7b7c42eadaaf4a2619c4368bf34212d8e1cff"
-  integrity sha512-4C58LIPgsClk5eS8wXJXyky9ofopG1SLJ37WO8AmJh7noyDxBXvkFZbWXNeHajCXHTlS9uiK4jYFYuJhoFjieg==
+kentico-cloud-content-management@^0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/kentico-cloud-content-management/-/kentico-cloud-content-management-0.0.14.tgz#4678d5fc77e78ceb5b0ed8671ca5c5f0adb675c4"
+  integrity sha512-8fM29qxELZ9ztemXssyDl2invhSBWcg7onwwe/Q7rptFSuTipYmfDH1XP5qiJnckZxMVd++qrj1N6idXhCZCDw==
   dependencies:
     kentico-cloud-core "1.4.5"
 

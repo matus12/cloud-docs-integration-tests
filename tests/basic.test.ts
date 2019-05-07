@@ -6,6 +6,8 @@ import {
     addContentItem,
     createNewVersionOfDefaultLanguageVariant,
     publishDefaultLanguageVariant,
+    scheduleDefaultLanguageVariant,
+    setDefaultLanguageVariantToCascadePublishStep,
     unpublishDefaultLanguageVariant,
     upsertDefaultLanguageVariant,
 } from "../shared/kenticoCloudHelper";
@@ -15,6 +17,7 @@ import {
     setupEnvironment,
     tearDownEnviroment,
 } from "../shared/testEnvironment";
+import { triggerPublisher } from "../external/triggerPublisher";
 
 jest.setTimeout(300000);
 
@@ -302,7 +305,7 @@ test("Saga: Publish, unpublish, create new version", async () => {
     await assertSearchWithRetry(updatedTextToSearch, 1, "Search updated article");
 });
 
-test("Saga: Search content of a hierarchical article", async () => {
+test("Saga: Search content of a hierarchical article using cascade publish", async () => {
     const calloutText = randomize("test_9");
     const callout = await addContentItem(`Test 9 Callout (${calloutText})`, context.types.callout.codename);
     await upsertDefaultLanguageVariant(callout.id, [
@@ -313,7 +316,6 @@ test("Saga: Search content of a hierarchical article", async () => {
             value: `<p>Some random text in callout: ${calloutText}.</p>`,
         },
     ]);
-    await publishDefaultLanguageVariant(callout.id);
 
     const contentChunkText = randomize("test_9");
     const contentChunk =
@@ -327,7 +329,6 @@ test("Saga: Search content of a hierarchical article", async () => {
             `<object type=\"application/kenticocloud\" data-type=\"item\" data-id=\"${callout.id}\"></object>`,
         },
     ]);
-    await publishDefaultLanguageVariant(contentChunk.id);
 
     const article = await addContentItem(`Test 9 article (8uw2u7qgww)`, context.types.article.codename);
     await upsertDefaultLanguageVariant(article.id, [
@@ -345,7 +346,9 @@ test("Saga: Search content of a hierarchical article", async () => {
                     `data-type=\"item\" data-id=\"${contentChunk.id}\"></object>`,
         },
     ]);
-    await publishDefaultLanguageVariant(article.id);
+
+    await setDefaultLanguageVariantToCascadePublishStep(article.id);
+    await triggerPublisher();
 
     await assertSearchRecordWithRetry(calloutText, {
         codename: article.codename,
@@ -359,6 +362,70 @@ test("Saga: Search content of a hierarchical article", async () => {
         content: `Some random text in content chunk: ${contentChunkText}.`,
         id: article.id,
         title: "Test Article (8uw2u7qgww)",
+    }, "Search by content chunk text should return a hit.");
+
+    await unpublishDefaultLanguageVariant(contentChunk.id);
+    await assertSearchWithRetry(contentChunkText, 0, "Search by content chunk text shouldn't return a hit.");
+    await assertSearchWithRetry(calloutText, 0, "Search by callout text shouldn't return a hit.");
+});
+
+test("Saga: Search content of a hierarchical article using scheduled publish", async () => {
+    const calloutText = randomize("test_10");
+    const callout = await addContentItem(`Test 10 Callout (${calloutText})`, context.types.callout.codename);
+    await upsertDefaultLanguageVariant(callout.id, [
+        {
+            element: {
+                codename: "content",
+            },
+            value: `<p>Some random text in callout: ${calloutText}.</p>`,
+        },
+    ]);
+
+    const contentChunkText = randomize("test_10");
+    const contentChunk =
+        await addContentItem(`Test 10 Content Chunk (${contentChunkText})`, context.types.content_chunk.codename);
+    await upsertDefaultLanguageVariant(contentChunk.id, [
+        {
+            element: {
+                codename: "content",
+            },
+            value: `<p>Some random text in content chunk: ${contentChunkText}.</p>` +
+                `<object type=\"application/kenticocloud\" data-type=\"item\" data-id=\"${callout.id}\"></object>`,
+        },
+    ]);
+
+    const article = await addContentItem(`Test 10 article (8uw2u7gfgf)`, context.types.article.codename);
+    await upsertDefaultLanguageVariant(article.id, [
+        {
+            element: {
+                codename: "title",
+            },
+            value: "Test Article (8uw2u7gfgf)",
+        },
+        {
+            element: {
+                codename: "content",
+            },
+            value: `<p>Some content: </p><object type=\"application/kenticocloud\" ` +
+                `data-type=\"item\" data-id=\"${contentChunk.id}\"></object>`,
+        },
+    ]);
+
+    await scheduleDefaultLanguageVariant(article.id);
+    await triggerPublisher();
+
+    await assertSearchRecordWithRetry(calloutText, {
+        codename: article.codename,
+        content: `Some random text in callout: ${calloutText}.`,
+        id: article.id,
+        title: "Test Article (8uw2u7gfgf)",
+    }, "Search by callout text should return a hit.");
+
+    await assertSearchRecordWithRetry(contentChunkText, {
+        codename: article.codename,
+        content: `Some random text in content chunk: ${contentChunkText}.`,
+        id: article.id,
+        title: "Test Article (8uw2u7gfgf)",
     }, "Search by content chunk text should return a hit.");
 
     await unpublishDefaultLanguageVariant(contentChunk.id);
