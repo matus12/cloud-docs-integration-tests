@@ -24,15 +24,18 @@ The tests then check whether the created content items have been indexed on Algo
 4. Run the tests using `yarn test`.
 
 #### Required Keys
-* `OHP_LIVE_CM_API_KEY` - Content management API key of live Kentico Cloud project
-* `OHP_LIVE_PROJECT_ID` - Project ID of live Kentico Cloud project
-* `OHP_TEST_CM_API_KEY` - Content management API key of test Kentico Cloud project
-* `OHP_TEST_PROJECT_ID` - Project ID of test Kentico Cloud project
-* `OHP_SEARCH_APP_ID` - Algolia application ID
-* `OHP_SEARCH_API_KEY` - Algolia admin API key
-* `OHP_SEARCH_INDEX_NAME` - Index name in Algolia application
-* `CASCADE_PUBLISH_ID` - Cascade Publish workflow step ID
+* `LIVE_CM_API_KEY` - Content management API key of live Kentico Cloud project
+* `LIVE_PROJECT_ID` - Project ID of live Kentico Cloud project
+* `TEST_CM_API_KEY` - Content management API key of test Kentico Cloud project
+* `TEST_SECURED_API_KEY` - Secured Delivery API key of test Kentico Cloud project
+* `TEST_PROJECT_ID` - Project ID of test Kentico Cloud project
+* `SEARCH_APP_ID` - Algolia application ID
+* `SEARCH_API_KEY` - Algolia admin API key
+* `SEARCH_INDEX_NAME` - Index name in Algolia application
+* `CASCADE_PUBLISH_ID` - Cascade Publish workflow step ID (test KC project)
+* `PUBLISHED_ID` - Publish workflow step ID (test KC project)
 * `PUBLISHER_TRIGGER_URL` - Trigger endpoint of the [Publisher Service](https://github.com/Kentico/kentico-cloud-docs-publisher)
+* `WEB_URL` - URL of the deployed [web instance](https://github.com/Kentico/kentico-cloud-docs-web)
 
 ## How To Contribute
 
