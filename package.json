@@ -6,6 +6,7 @@
     "@types/jest": "^24.0.5",
     "@types/node": "^11.9.3",
     "@types/randomstring": "^1.1.6",
+    "@octokit/rest": "^16.21.1",
     "@types/selenium-webdriver": "^4.0.0",
     "algoliasearch": "^3.32.0",
     "async-retry": "^1.2.3",

@@ -25,6 +25,7 @@ import {
 } from "./requiredWebItems";
 import { Types } from "./constants";
 import ContentItem = ContentItemModels.ContentItem;
+import { deleteFilesFromGitHub } from "./github/githubHelper";
 
 const typesPublishedInSetup = [
     Types.Author,
@@ -89,6 +90,8 @@ export const setupEnvironment = async (): Promise<IEnvironmentContext> => {
 
 export const tearDownEnvironment = async (context: IEnvironmentContext): Promise<void> => {
     const typeIds = Object.keys(context.types).map((key: string) => context.types[key].id);
+
+    await deleteFilesFromGitHub();
 
     await deleteContentItems(typeIds);
     await deleteContentTypes(typeIds);

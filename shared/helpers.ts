@@ -217,3 +217,11 @@ export const assertNoSuggestions = async (driver: WebDriver): Promise<void> => {
 
     expect(suggestionHeading).toEqual(NO_RESULTS);
 };
+
+export const assertCodeSamplesOnWeb = (codeSamplesFromWeb: string[], expectedCodeSamples: string[]) => {
+    expect(codeSamplesFromWeb.length).toEqual(expectedCodeSamples.length);
+
+    for (const codeSampleFromWeb of codeSamplesFromWeb) {
+        expect(expectedCodeSamples).toContain(codeSampleFromWeb);
+    }
+};

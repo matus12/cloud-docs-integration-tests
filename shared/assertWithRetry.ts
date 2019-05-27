@@ -38,7 +38,9 @@ const assertWithRetry = async (assert: () => void): Promise<void> => {
 };
 
 const expectCorrectSearchRecord = (actual: ISearchRecord, expected: ISearchRecord): void => {
-    expect(actual.content).toEqual(expected.content);
+    const actualContent = actual.content.replace(/\s/g, '');
+    const expectedContent = expected.content.replace(/\s/g, '');
+    expect(actualContent).toEqual(expectedContent);
     expect(actual.id).toEqual(expected.id);
     expect(actual.title).toEqual(expected.title);
     expect(actual.codename).toEqual(expected.codename);
