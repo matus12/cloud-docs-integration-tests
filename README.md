@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/Kentico/kentico-cloud-docs-integration-tests.svg?branch=master)](https://travis-ci.com/Kentico/kentico-cloud-docs-integration-tests)
-[![codebeat badge](https://codebeat.co/badges/260d7081-910a-430f-a59b-fc6de2c998c4)](https://codebeat.co/projects/github-com-kentico-kentico-cloud-docs-integration-tests-master)
+[![Build Status](https://travis-ci.com/KenticoDocs/cloud-docs-integration-tests.svg?branch=master)](https://travis-ci.com/KenticoDocs/cloud-docs-integration-tests)
+[![codebeat badge](https://codebeat.co/badges/c7a2ffe5-1c85-4a72-9602-8106416252bd)](https://codebeat.co/projects/github-com-kenticodocs-cloud-docs-integration-tests-master)
 
 # Kentico Cloud Documentation - Integration Tests
 Integration tests for Kentico Cloud [documentation portal](https://docs.kenticocloud.com/), which utilizes Kentico Cloud as a source of its content.
