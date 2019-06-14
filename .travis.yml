@@ -2,9 +2,8 @@ sudo: required
 language: node_js
 dist: trusty
 addons:
-  apt:
-    packages:
-      - google-chrome-stable
+  chrome: stable
+      #- google-chrome-stable
 before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 node_js:
