@@ -11,7 +11,7 @@ pool:
 
 steps:
 - powershell: |
-    Write-Host "Demo $(KC_STEP_PUBLISHED_ID)"
+    Write-Host "Demo $(KC_TEST)"
   displayName: 'Log variables'
 
 - task: NodeTool@0
