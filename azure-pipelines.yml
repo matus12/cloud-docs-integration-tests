@@ -10,10 +10,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- powershell: |
-    Write-Host "Demo $(KC_TEST)"
-  displayName: 'Log variables'
-
 - task: NodeTool@0
   inputs:
     versionSpec: '10.x'
@@ -21,8 +17,11 @@ steps:
 
 - script: |
     npm install
+  displayName: 'npm install'
+
+- script: |
     npm run test
-  displayName: 'npm install and test'
+  displayName: 'npm test'
   env:
     OHP_SEARCH_API_KEY: $(OHP_SEARCH_API_KEY)
     OHP_SEARCH_APP_ID: $(OHP_SEARCH_APP_ID)

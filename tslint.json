@@ -11,7 +11,8 @@
   },
   "jsRules": {},
   "rules": {
-    "no-var-requires": false
+    "no-var-requires": false,
+    "quotemark": [true, "single"]
   },
   "rulesDirectory": []
 }

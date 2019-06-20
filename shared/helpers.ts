@@ -1,30 +1,31 @@
 import axios from 'axios';
-import retry from "async-retry";
+import retry from 'async-retry';
 import {
     By,
     Locator,
+    until,
     WebDriver,
-    WebElement
-} from "selenium-webdriver";
+    WebElement,
+} from 'selenium-webdriver';
 import {
     PUBLISHED_ID,
-    WEB_URL
-} from "./projectSettings";
+    WEB_URL,
+} from './projectSettings';
 import {
     createNewVersionOfDefaultLanguageVariant,
     upsertDefaultLanguageVariant,
-    viewDefaultLanguageVariant
-} from "./kenticoCloudHelper";
-import { ContentItemModels } from "kentico-cloud-content-management";
-import { IEnvironmentContext } from "./testEnvironment";
+    viewDefaultLanguageVariant,
+} from './kenticoCloudHelper';
+import { ContentItemModels } from 'kentico-cloud-content-management';
+import { IEnvironmentContext } from './testEnvironment';
 import {
     ClassAttributes,
     IdAttributes,
     NO_RESULTS,
     searchRetryTimeout,
     Types,
-    urlMapCheckTimeout
-} from "./constants";
+    urlMapCheckTimeout,
+} from './constants';
 import ContentItem = ContentItemModels.ContentItem;
 
 interface IActualValues {
@@ -93,10 +94,10 @@ const insertItemIntoParent =
                 },
                 value: [
                     {
-                        codename: item.codename
-                    }
-                ]
-            }
+                        codename: item.codename,
+                    },
+                ],
+            },
         ]);
 
         return parentItem;
@@ -112,7 +113,7 @@ export const typeIntoSearchInput = async (text: string, searchInput: WebElement,
 export const findElementWithRetry = async (driver: WebDriver, locator: Locator): Promise<WebElement> =>
     await retry(
         async () => await driver.findElement(locator),
-        { retries: 5 }
+        {retries: 6},
     );
 
 export const searchAndWaitForSuggestions = async (driver: WebDriver, textToSearch: string): Promise<void> => {
@@ -138,10 +139,11 @@ export const searchAndWaitForSuggestions = async (driver: WebDriver, textToSearc
 export const waitForUrlMapCacheUpdate = async (driver: WebDriver, articleCodename: string): Promise<void> => {
     await driver.wait(async () => {
         const response = await axios.get(`${WEB_URL}/urlmap`);
-        const urlMap = JSON.stringify(response.data);
+        const obj = response.data.filter((entry: any) => entry.codename === articleCodename);
 
-        if (urlMap.includes(articleCodename)) {
+        if (obj.length) {
             await driver.navigate().refresh();
+            console.log(JSON.stringify(obj));
 
             return true;
         } else {
@@ -153,20 +155,22 @@ export const waitForUrlMapCacheUpdate = async (driver: WebDriver, articleCodenam
     });
 };
 
-export const getSearchSuggestionTextAndRedirect = async (driver: WebDriver): Promise<string> => {
+export const getSearchSuggestionTextAndRedirect = async (driver: WebDriver, expectedUrl: string): Promise<string> => {
     const textElement = await findElementWithRetry(driver, By.className(ClassAttributes.SuggestionText));
     const searchSuggestionText = await textElement.getText();
 
-    await textElement.click();
+    const acko = await findElementWithRetry(driver, By.className('suggestion'));
+    const href = await acko.getAttribute('href');
 
-    await driver.sleep(15000);
+    console.log('href: ', href === '' ? 'empty' : href);
+    await acko.click();
 
     return searchSuggestionText;
 };
 
 export const getSearchableContent = async (driver: WebDriver): Promise<ISearchableContent> => {
-    const articleParagraphs = await driver.findElements(By.css('p'));
     const articleHeadings = await driver.findElements(By.css('h2'));
+    const articleParagraphs = await driver.findElements(By.css('p'));
     const contentFromParagraphs: string[] = [];
 
     for (const paragraph of articleParagraphs) {
@@ -177,7 +181,7 @@ export const getSearchableContent = async (driver: WebDriver): Promise<ISearchab
 
     return {
         contentFromParagraphs,
-        headingText
+        headingText,
     };
 };
 
@@ -185,9 +189,9 @@ export const assertContentOnWeb = (actual: IActualValues, expected: IExpectedVal
     actual.searchSuggestionText = actual.searchSuggestionText.replace(/…/g, '');
 
     expect(expected.content).toContain(actual.searchSuggestionText);
-    // expect(actual.searchableContent.contentFromParagraphs).toContain(expected.content);
-    expect(actual.searchableContent.headingText).toEqual(expected.heading);
     expect(actual.urlWithoutQuery).toEqual(expected.expectedUrl);
+    expect(actual.searchableContent.headingText).toEqual(expected.heading);
+    expect(actual.searchableContent.contentFromParagraphs).toContain(expected.content);
 };
 
 export const assertNoSuggestions = async (driver: WebDriver): Promise<void> => {
