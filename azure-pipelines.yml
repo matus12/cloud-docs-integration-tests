@@ -10,6 +10,10 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+- powershell: |
+  Write-Host "Demo $(KC_STEP_PUBLISHED_ID)"
+  displayName: 'Log variables'
+
 - task: NodeTool@0
   inputs:
     versionSpec: '10.x'
