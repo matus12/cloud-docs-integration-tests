@@ -155,7 +155,7 @@ export const waitForUrlMapCacheUpdate = async (driver: WebDriver, articleCodenam
     });
 };
 
-export const getSearchSuggestionTextAndRedirect = async (driver: WebDriver, expectedUrl: string): Promise<string> => {
+export const getSearchSuggestionTextAndRedirect = async (driver: WebDriver, expectedUrl: string = ''): Promise<string> => {
     const textElement = await findElementWithRetry(driver, By.className(ClassAttributes.SuggestionText));
     const searchSuggestionText = await textElement.getText();
 
