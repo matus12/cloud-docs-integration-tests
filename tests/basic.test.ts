@@ -575,8 +575,8 @@ test("Search content of a callout within an article", async () => {
      await driver.navigate().refresh();
 
      await waitForUrlMapCacheUpdate(driver, article.codename);
-     let searchSuggestionText = '';
-    let url = await driver.getCurrentUrl();
+     searchSuggestionText = '';
+     url = await driver.getCurrentUrl();
     while (url !== expectedValues.expectedUrl) {
         await searchAndWaitForSuggestions(driver, textToSearch);
         searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
@@ -610,8 +610,8 @@ test("Search content of a callout within an article", async () => {
      await assertSearchWithRetry(updatedTextToSearch, 1, "Search updated article");
 
      await waitForUrlMapCacheUpdate(driver, article.codename);
-     let searchSuggestionText = '';
-    let url = await driver.getCurrentUrl();
+     searchSuggestionText = '';
+     url = await driver.getCurrentUrl();
     while (url !== expectedValues.expectedUrl) {
         await searchAndWaitForSuggestions(driver, updatedTextToSearch);
         searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
