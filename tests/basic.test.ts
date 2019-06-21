@@ -362,69 +362,77 @@ test.only('Search title of published article', async () => {
 
     assertContentOnWeb(actualValues, expectedValues);
 });
-//
-// test("Search content of a callout within an article", async () => {
-//     const textToSearch = randomize("test_6");
-//     const content = `Some random text in callout: ${textToSearch}`;
-//     const title = randomize('title');
-//     const expectedValues = {
-//         heading: '',
-//         content,
-//         expectedUrl: getExpectedUrl(Types.Article, title)
-//     };
-//
-//     const callout = await addContentItem(`Test 6 Callout (${textToSearch})`, context.types.callout.codename);
-//     await upsertDefaultLanguageVariant(callout.id, [
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>${content}</p>`,
-//         },
-//     ]);
-//     await publishDefaultLanguageVariant(callout.id);
-//
-//     const article = await addContentItem(`Test 6 article (tlhkvctfwx)`, context.types.article.codename);
-//     await upsertDefaultLanguageVariant(article.id, [
-//         {
-//             element: {
-//                 codename: "title",
-//             },
-//             value: title,
-//         },
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>Some content </p><object type=\"application/kenticocloud\" ` +
-//                 `data-type=\"item\" data-id=\"${callout.id}\"></object>`,
-//         },
-//     ]);
-//
-//     const topic = await insertArticleToTopic(article, context);
-//
-//     await publishDefaultLanguageVariant(article.id);
-//     await publishDefaultLanguageVariant(topic.id);
-//
-//     await assertSearchRecordWithRetry(textToSearch, {
-//         codename: article.codename,
-//         content: content,
-//         id: article.id,
-//         title,
-//     });
-//
-//     await waitForUrlMapCacheUpdate(driver, article.codename);
-//     await searchAndWaitForSuggestions(driver, textToSearch);
-//
-//     const actualValues = {
-//         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
-//         urlWithoutQuery: await driver.getCurrentUrl(),
-//         searchableContent: await getSearchableContent(driver)
-//     };
-//
-//     assertContentOnWeb(actualValues, expectedValues);
-// });
-//
+
+test("Search content of a callout within an article", async () => {
+    const textToSearch = randomize("test_6");
+     const content = `Some random text in callout: ${textToSearch}`;
+     const title = randomize('title');
+     const expectedValues = {
+         heading: '',
+         content,
+         expectedUrl: getExpectedUrl(Types.Article, title)
+     };
+
+     const callout = await addContentItem(`Test 6 Callout (${textToSearch})`, context.types.callout.codename);
+     await upsertDefaultLanguageVariant(callout.id, [
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>${content}</p>`,
+         },
+     ]);
+     await publishDefaultLanguageVariant(callout.id);
+
+     const article = await addContentItem(`Test 6 article (tlhkvctfwx)`, context.types.article.codename);
+     await upsertDefaultLanguageVariant(article.id, [
+         {
+             element: {
+                 codename: "title",
+             },
+             value: title,
+         },
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>Some content </p><object type=\"application/kenticocloud\" ` +
+                 `data-type=\"item\" data-id=\"${callout.id}\"></object>`,
+         },
+     ]);
+
+     const topic = await insertArticleToTopic(article, context);
+
+     await publishDefaultLanguageVariant(article.id);
+     await publishDefaultLanguageVariant(topic.id);
+
+     await assertSearchRecordWithRetry(textToSearch, {
+         codename: article.codename,
+         content: content,
+         id: article.id,
+         title,
+     });
+
+     await waitForUrlMapCacheUpdate(driver, article.codename);
+     let searchSuggestionText = '';
+    let url = await driver.getCurrentUrl();
+    while (url !== expectedValues.expectedUrl) {
+        await searchAndWaitForSuggestions(driver, textToSearch);
+        searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
+
+        await driver.sleep(3000);
+        url = await driver.getCurrentUrl();
+    }
+
+     const actualValues = {
+         searchSuggestionText,
+         urlWithoutQuery: await driver.getCurrentUrl(),
+         searchableContent: await getSearchableContent(driver)
+     };
+
+     assertContentOnWeb(actualValues, expectedValues);
+ });
+
 // test("Search content of a content chunk within an article", async () => {
 //     const textToSearch = randomize("test_7");
 //     const content = `Some random text in content chunk: ${textToSearch}.`;
