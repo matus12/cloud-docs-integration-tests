@@ -75,7 +75,7 @@ beforeEach(async () => {
     await driver.get(WEB_URL);
 });
 
-test.only('Search content of published article', async () => {
+test('Search content of published article', async () => {
     const textToSearch = randomize('article_content');
     const title = randomize('title');
     const heading = randomize('heading');
@@ -134,7 +134,7 @@ test.only('Search content of published article', async () => {
     assertContentOnWeb(actualValues, expectedValues);
 });
 
-test.only('Search introduction of published article', async () => {
+test('Search introduction of published article', async () => {
     const textToSearch = randomize('article_introduction');
     const title = randomize('title');
     const content = `Some random text: ${textToSearch}.`;
@@ -191,7 +191,7 @@ test.only('Search introduction of published article', async () => {
     assertContentOnWeb(actualValues, expectedValues);
 });
 
-test.only('Search content of published scenario', async () => {
+test('Search content of published scenario', async () => {
     const textToSearch = randomize('scenario_content');
     const title = randomize('title');
     const content = `Some random text: ${textToSearch}.`;
@@ -248,7 +248,7 @@ test.only('Search content of published scenario', async () => {
     assertContentOnWeb(actualValues, expectedValues);
 });
 
-test.only('Search introduction of published scenario', async () => {
+test('Search introduction of published scenario', async () => {
     const textToSearch = randomize('scenario_introduction');
     const title = randomize('title');
     const introduction = `Some random text: ${textToSearch}.`;
@@ -305,7 +305,7 @@ test.only('Search introduction of published scenario', async () => {
     assertContentOnWeb(actualValues, expectedValues);
 });
 
-test.only('Search title of published article', async () => {
+test('Search title of published article', async () => {
     const textToSearch = randomize('article_title');
     const content = 'Some random text';
     const expectedValues = {
@@ -433,173 +433,203 @@ test("Search content of a callout within an article", async () => {
      assertContentOnWeb(actualValues, expectedValues);
  });
 
-// test("Search content of a content chunk within an article", async () => {
-//     const textToSearch = randomize("test_7");
-//     const content = `Some random text in content chunk: ${textToSearch}.`;
-//     const title = randomize("title");
-//     const expectedValues = {
-//         heading: '',
-//         content,
-//         expectedUrl: getExpectedUrl(Types.Article, title)
-//     };
-//
-//     const contentChunk =
-//         await addContentItem(`Test 7 Content Chunk (${textToSearch})`, context.types.content_chunk.codename);
-//     await upsertDefaultLanguageVariant(contentChunk.id, [
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>${content}</p>`,
-//         },
-//     ]);
-//     await publishDefaultLanguageVariant(contentChunk.id);
-//
-//     const article = await addContentItem(`Test 7 article (8uw2u7qgww)`, context.types.article.codename);
-//     await upsertDefaultLanguageVariant(article.id, [
-//         {
-//             element: {
-//                 codename: "title",
-//             },
-//             value: title,
-//         },
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>Some content: </p><object type=\"application/kenticocloud\" ` +
-//                 `data-type=\"item\" data-id=\"${contentChunk.id}\"></object>`,
-//         },
-//     ]);
-//
-//     const topic = await insertArticleToTopic(article, context);
-//
-//     await publishDefaultLanguageVariant(article.id);
-//     await publishDefaultLanguageVariant(topic.id);
-//
-//     await assertSearchRecordWithRetry(textToSearch, {
-//         codename: article.codename,
-//         content,
-//         id: article.id,
-//         title,
-//     });
-//
-//     await waitForUrlMapCacheUpdate(driver, article.codename);
-//     await searchAndWaitForSuggestions(driver, textToSearch);
-//
-//     const actualValues = {
-//         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
-//         urlWithoutQuery: await driver.getCurrentUrl(),
-//         searchableContent: await getSearchableContent(driver)
-//     };
-//
-//     assertContentOnWeb(actualValues, expectedValues);
-// });
-//
-// test("Saga: Publish, unpublish, create new version", async () => {
-//     const textToSearch = randomize("test_8");
-//     const title = randomize("title");
-//     const content = `Some random text: ${textToSearch}.`;
-//     const expectedValues = {
-//         heading: '',
-//         content,
-//         expectedUrl: getExpectedUrl(Types.Article, title)
-//     };
-//
-//     const article = await addContentItem(`Test 8 article (${textToSearch})`, context.types.article.codename);
-//     await upsertDefaultLanguageVariant(article.id, [
-//         {
-//             element: {
-//                 codename: "title",
-//             },
-//             value: title,
-//         },
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>${content}</p>`,
-//         },
-//     ]);
-//
-//     const topic = await insertArticleToTopic(article, context);
-//
-//     await publishDefaultLanguageVariant(article.id);
-//     await publishDefaultLanguageVariant(topic.id);
-//
-//     await assertSearchRecordWithRetry(textToSearch, {
-//         codename: article.codename,
-//         content,
-//         id: article.id,
-//         title,
-//     }, "Search published article");
-//
-//     await waitForUrlMapCacheUpdate(driver, article.codename);
-//     await searchAndWaitForSuggestions(driver, textToSearch);
-//
-//     const actualValuesFirstPublish = {
-//         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
-//         urlWithoutQuery: await driver.getCurrentUrl(),
-//         searchableContent: await getSearchableContent(driver)
-//     };
-//
-//     assertContentOnWeb(actualValuesFirstPublish, expectedValues);
-//
-//     await unpublishDefaultLanguageVariant(article.id);
-//     await assertSearchWithRetry(textToSearch, 0, "Search unpublished article");
-//
-//     await driver.get(WEB_URL);
-//     let searchInput = await findElementWithRetry(driver, By.id(IdAttributes.Search));
-//
-//     await typeIntoSearchInput(textToSearch, searchInput, driver);
-//     await assertNoSuggestions(driver);
-//
-//     await publishDefaultLanguageVariant(article.id);
-//     await assertSearchWithRetry(textToSearch, 1, "Search once more published article");
-//
-//     await driver.navigate().refresh();
-//
-//     await waitForUrlMapCacheUpdate(driver, article.codename);
-//     await searchAndWaitForSuggestions(driver, textToSearch);
-//
-//     const actualValuesSecondPublish = {
-//         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
-//         urlWithoutQuery: await driver.getCurrentUrl(),
-//         searchableContent: await getSearchableContent(driver)
-//     };
-//
-//     assertContentOnWeb(actualValuesSecondPublish, expectedValues);
-//     await driver.get(WEB_URL);
-//
-//     const updatedTextToSearch = randomize("test_8");
-//     const updatedArticleContent = `Some random text: ${updatedTextToSearch}.`;
-//
-//     await createNewVersionOfDefaultLanguageVariant(article.id);
-//     await upsertDefaultLanguageVariant(article.id, [
-//         {
-//             element: {
-//                 codename: "content",
-//             },
-//             value: `<p>${updatedArticleContent}</p>`,
-//         },
-//     ]);
-//
-//     await publishDefaultLanguageVariant(article.id);
-//     await assertSearchWithRetry(updatedTextToSearch, 1, "Search updated article");
-//
-//     await waitForUrlMapCacheUpdate(driver, article.codename);
-//     await searchAndWaitForSuggestions(driver, updatedTextToSearch);
-//     expectedValues.content = updatedArticleContent;
-//
-//     const actualValuesThirdPublish = {
-//         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
-//         urlWithoutQuery: await driver.getCurrentUrl(),
-//         searchableContent: await getSearchableContent(driver)
-//     };
-//
-//     assertContentOnWeb(actualValuesThirdPublish, expectedValues);
-// });
-//
+ test("Search content of a content chunk within an article", async () => {
+     const textToSearch = randomize("test_7");
+     const content = `Some random text in content chunk: ${textToSearch}.`;
+     const title = randomize("title");
+     const expectedValues = {
+         heading: '',
+         content,
+         expectedUrl: getExpectedUrl(Types.Article, title)
+     };
+
+     const contentChunk =
+         await addContentItem(`Test 7 Content Chunk (${textToSearch})`, context.types.content_chunk.codename);
+     await upsertDefaultLanguageVariant(contentChunk.id, [
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>${content}</p>`,
+         },
+     ]);
+     await publishDefaultLanguageVariant(contentChunk.id);
+
+     const article = await addContentItem(`Test 7 article (8uw2u7qgww)`, context.types.article.codename);
+     await upsertDefaultLanguageVariant(article.id, [
+         {
+             element: {
+                 codename: "title",
+             },
+             value: title,
+         },
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>Some content: </p><object type=\"application/kenticocloud\" ` +
+                 `data-type=\"item\" data-id=\"${contentChunk.id}\"></object>`,
+         },
+     ]);
+
+     const topic = await insertArticleToTopic(article, context);
+
+     await publishDefaultLanguageVariant(article.id);
+     await publishDefaultLanguageVariant(topic.id);
+
+     await assertSearchRecordWithRetry(textToSearch, {
+         codename: article.codename,
+         content,
+         id: article.id,
+         title,
+     });
+
+     await waitForUrlMapCacheUpdate(driver, article.codename);
+     let searchSuggestionText = '';
+    let url = await driver.getCurrentUrl();
+    while (url !== expectedValues.expectedUrl) {
+        await searchAndWaitForSuggestions(driver, textToSearch);
+        searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
+
+        await driver.sleep(3000);
+        url = await driver.getCurrentUrl();
+    }
+
+     const actualValues = {
+         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
+         urlWithoutQuery: await driver.getCurrentUrl(),
+         searchableContent: await getSearchableContent(driver)
+     };
+
+     assertContentOnWeb(actualValues, expectedValues);
+ });
+
+ test("Saga: Publish, unpublish, create new version", async () => {
+     const textToSearch = randomize("test_8");
+     const title = randomize("title");
+     const content = `Some random text: ${textToSearch}.`;
+     const expectedValues = {
+         heading: '',
+         content,
+         expectedUrl: getExpectedUrl(Types.Article, title)
+     };
+
+     const article = await addContentItem(`Test 8 article (${textToSearch})`, context.types.article.codename);
+     await upsertDefaultLanguageVariant(article.id, [
+         {
+             element: {
+                 codename: "title",
+             },
+             value: title,
+         },
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>${content}</p>`,
+         },
+     ]);
+
+     const topic = await insertArticleToTopic(article, context);
+
+     await publishDefaultLanguageVariant(article.id);
+     await publishDefaultLanguageVariant(topic.id);
+
+     await assertSearchRecordWithRetry(textToSearch, {
+         codename: article.codename,
+         content,
+         id: article.id,
+         title,
+     }, "Search published article");
+
+     await waitForUrlMapCacheUpdate(driver, article.codename);
+     let searchSuggestionText = '';
+    let url = await driver.getCurrentUrl();
+    while (url !== expectedValues.expectedUrl) {
+        await searchAndWaitForSuggestions(driver, textToSearch);
+        searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
+
+        await driver.sleep(3000);
+        url = await driver.getCurrentUrl();
+    }
+     const actualValuesFirstPublish = {
+         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
+         urlWithoutQuery: await driver.getCurrentUrl(),
+         searchableContent: await getSearchableContent(driver)
+     };
+
+     assertContentOnWeb(actualValuesFirstPublish, expectedValues);
+
+     await unpublishDefaultLanguageVariant(article.id);
+     await assertSearchWithRetry(textToSearch, 0, "Search unpublished article");
+
+     await driver.get(WEB_URL);
+     let searchInput = await findElementWithRetry(driver, By.id(IdAttributes.Search));
+
+     await typeIntoSearchInput(textToSearch, searchInput, driver);
+     await assertNoSuggestions(driver);
+
+     await publishDefaultLanguageVariant(article.id);
+     await assertSearchWithRetry(textToSearch, 1, "Search once more published article");
+
+     await driver.navigate().refresh();
+
+     await waitForUrlMapCacheUpdate(driver, article.codename);
+     let searchSuggestionText = '';
+    let url = await driver.getCurrentUrl();
+    while (url !== expectedValues.expectedUrl) {
+        await searchAndWaitForSuggestions(driver, textToSearch);
+        searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
+
+        await driver.sleep(3000);
+        url = await driver.getCurrentUrl();
+    }
+     const actualValuesSecondPublish = {
+         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
+         urlWithoutQuery: await driver.getCurrentUrl(),
+         searchableContent: await getSearchableContent(driver)
+     };
+
+     assertContentOnWeb(actualValuesSecondPublish, expectedValues);
+     await driver.get(WEB_URL);
+
+     const updatedTextToSearch = randomize("test_8");
+     const updatedArticleContent = `Some random text: ${updatedTextToSearch}.`;
+
+     await createNewVersionOfDefaultLanguageVariant(article.id);
+     await upsertDefaultLanguageVariant(article.id, [
+         {
+             element: {
+                 codename: "content",
+             },
+             value: `<p>${updatedArticleContent}</p>`,
+         },
+     ]);
+
+     await publishDefaultLanguageVariant(article.id);
+     await assertSearchWithRetry(updatedTextToSearch, 1, "Search updated article");
+
+     await waitForUrlMapCacheUpdate(driver, article.codename);
+     let searchSuggestionText = '';
+    let url = await driver.getCurrentUrl();
+    while (url !== expectedValues.expectedUrl) {
+        await searchAndWaitForSuggestions(driver, updatedTextToSearch);
+        searchSuggestionText = await getSearchSuggestionTextAndRedirect(driver, expectedValues.expectedUrl);
+
+        await driver.sleep(3000);
+        url = await driver.getCurrentUrl();
+    }     
+     expectedValues.content = updatedArticleContent;
+
+     const actualValuesThirdPublish = {
+         searchSuggestionText: await getSearchSuggestionTextAndRedirect(driver),
+         urlWithoutQuery: await driver.getCurrentUrl(),
+         searchableContent: await getSearchableContent(driver)
+     };
+
+     assertContentOnWeb(actualValuesThirdPublish, expectedValues);
+ });
+
 // test("Saga: Search content of a hierarchical article using cascade publish", async () => {
 //     const calloutText = randomize("test_9");
 //     const title = randomize("title");
