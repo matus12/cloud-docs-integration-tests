@@ -1,23 +1,12 @@
-import axios from 'axios';
 import retry from 'async-retry';
+import axios from 'axios';
+import { ContentItemModels } from 'kentico-cloud-content-management';
 import {
     By,
     Locator,
-    until,
     WebDriver,
     WebElement,
 } from 'selenium-webdriver';
-import {
-    PUBLISHED_ID,
-    WEB_URL,
-} from './projectSettings';
-import {
-    createNewVersionOfDefaultLanguageVariant,
-    upsertDefaultLanguageVariant,
-    viewDefaultLanguageVariant,
-} from './kenticoCloudHelper';
-import { ContentItemModels } from 'kentico-cloud-content-management';
-import { IEnvironmentContext } from './testEnvironment';
 import {
     ClassAttributes,
     IdAttributes,
@@ -26,6 +15,16 @@ import {
     Types,
     urlMapCheckTimeout,
 } from './constants';
+import {
+    createNewVersionOfDefaultLanguageVariant,
+    upsertDefaultLanguageVariant,
+    viewDefaultLanguageVariant,
+} from './kenticoCloudHelper';
+import {
+    PUBLISHED_ID,
+    WEB_URL,
+} from './projectSettings';
+import { IEnvironmentContext } from './testEnvironment';
 import ContentItem = ContentItemModels.ContentItem;
 
 interface IActualValues {
@@ -138,35 +137,38 @@ export const searchAndWaitForSuggestions = async (driver: WebDriver, textToSearc
 
 export const waitForUrlMapCacheUpdate = async (driver: WebDriver, articleCodename: string): Promise<void> => {
     await driver.wait(async () => {
-        const response = await axios.get(`${WEB_URL}/urlmap`);
-        const obj = response.data.filter((entry: any) => entry.codename === articleCodename);
+        try {
+            const response = await axios.get(`${WEB_URL}/urlmap`);
 
-        if (obj.length) {
-            await driver.navigate().refresh();
-            console.log(JSON.stringify(obj));
+            const obj = response.data.filter((entry: any) => entry.codename === articleCodename);
 
-            return true;
-        } else {
+            if (obj.length) {
+                await driver.navigate().refresh();
 
-            await driver.sleep(urlMapCheckTimeout);
+                return true;
+            } else {
 
-            return false;
+                await driver.sleep(urlMapCheckTimeout);
+
+                return false;
+            }
+        } catch (error) {
+            console.log(`${error.message}, ${error.stack}`);
         }
     });
 };
 
-export const getSearchSuggestionTextAndRedirect = async (driver: WebDriver, expectedUrl: string = ''): Promise<string> => {
-    const textElement = await findElementWithRetry(driver, By.className(ClassAttributes.SuggestionText));
-    const searchSuggestionText = await textElement.getText();
+export const getSearchSuggestionTextAndRedirect =
+    async (driver: WebDriver): Promise<string> => {
+        const textElement = await findElementWithRetry(driver, By.className(ClassAttributes.SuggestionText));
+        const searchSuggestionText = await textElement.getText();
 
-    const acko = await findElementWithRetry(driver, By.className('suggestion'));
-    const href = await acko.getAttribute('href');
+        const acko = await findElementWithRetry(driver, By.className('suggestion'));
 
-    console.log('href: ', href === '' ? 'empty' : href);
-    await acko.click();
+        await acko.click();
 
-    return searchSuggestionText;
-};
+        return searchSuggestionText;
+    };
 
 export const getSearchableContent = async (driver: WebDriver): Promise<ISearchableContent> => {
     const articleHeadings = await driver.findElements(By.css('h2'));
